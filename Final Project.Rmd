@@ -1,0 +1,101 @@
+---
+title: "Effects of Citric Acid & ABV on Wine Quality"
+author: "Ashley Colgegrove, Michael Pierce, Randeep Singh, Mackenzie Teachout"
+output: 
+  html_document:
+    number_sections: true
+---
+
+# Introduction
+  The art of wine-making is an elusive process. It is very challenging to predict how consumers may react to a certain bottle of wine as taste is very subjective. While wine has been made for centuries now, there is still much to be discovered about the art and the science behind wine-making. The dataset we have chosen can help us gain a better understanding of what can make a good quality wine versus a bad quality wine according to the wine expert’s taste buds and brains.
+    
+  We hope to answer two questions regarding the dataset. First, we wish to explore and see if a correlation exists between the amount of citric acid and the rating given. Citric acid is a weak organic acid that is been prevalent within the wine industry for decades to supposedly increase the quality of the wine. Within red wine, citric acid is believed to make the wine have a “fresher” taste when high amounts are used during the fermentation process. It also helps the red wine be smooth and clear, else causing iron build up which leaves the wine in a ferric haze. Secondly, we wish to explore to see if a correlation exists between the amount of ABV (alcohol by volume) and the rating given. 
+  
+  Since our dataset was on a specific brand and type of wine, we were unable to find any prior research similar to our dataset. However, there may exist similar datasets of other wines or groups of wines.
+
+
+# Background
+  The data came from the north of Portugal. Specifically, the dataset was created by Paulo Cortez at the University of Minho in Guimarães, Portugal. The data was an observational study as the data collected were observations from wine experts. The study seems to be commissioned by the Viticulture Commission of the Vinho Verde Region (CVRVV) in Porto, Portugal in 2009.
+
+  The dataset we have chosen contains both the red & white variants of the Portuguese Vinho Verde wine. The dataset contains 1,599 red wine samples and 4,898 white wine samples. Input variables in the dataset consist of the type of wine (red or white) and metrics from objective tests, for example, acidity levels, PH values, and ABV values. Output variables in the dataset consist of a numerical score based on sensory data, which is the median of at least three evaluations made by wine experts. Each wine was graded on quality between 0 and 10. However, the dataset does not contain any information about the grapes used, wine brands, and the selling price of the wine. This is to protect the manufactures of the wine and their brand secrets. Finally, it is important to remember that quality ratings the wines received are subjective to that of the wine expert’s taste buds and their brains, due to taste and personal preferences being subjective.
+
+# Methods and Results
+
+Necessary libraries needed to complete our analysis and evaluation of the dataset.
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+Importing wine data, creating a subset data frame with wine type = "red", the amount of citric.acid and the quality of the wine
+```{r}
+wine_dataset = read.csv("wine-quality-white-and-red.csv", header = TRUE, sep = ",")
+red_wine_dataset = filter(wine_dataset, type == "red")
+```
+
+  The following block creates a linear model of the citric.acid vs quality of wine in the red_wine_dataset and prints a summary of the information. The summary below shows the coefficients for regression analysis as well as p-values to determine whether or not they can be accepted. From the Citric Acid vs Quality linear model, the slope coefficient is .055 and our intercept coefficient is -.037. With p-values that are less than our alpha value, we are able to reject the null hypothesis. Based on this, it can be assumed that there is a positive relationship between citric acid concentration in wine and the quality rating wine graders gave the red wine.
+```{r}
+citric_acid_v_quality <- lm(citric.acid ~ quality, data = red_wine_dataset)
+summary(citric_acid_v_quality)
+```
+
+  Then we can create a graphical model of our data. Below is a scatter plot of the amount of citric acid in red wine vs the quality rating given by wine graders. We were also able to draw the regression line with a 95% confidence interval over the data to visualize the positive relationship between the data.
+```{r}
+red_wine_dataset %>%
+ggplot(aes(x = quality, y = citric.acid)) +
+  geom_point() +
+  geom_smooth(method = "lm") 
+```
+
+  After presenting our data in both a mathematical and visual format, we looked at the distribution of citric acid concentrations in the red wine samples. Based on the chart, we could see that large amounts of the data had small concentrations. We then took the standard deviation of the citric acid and our value was .19. A sample with a wider array of citric acid concentrations may have improved the quality of the analysis.
+```{r}
+hist(red_wine_dataset$citric.acid)
+sd(red_wine_dataset$citric.acid)
+```
+
+  After we looked at the linear relationship between the data, we explored the correlation between citric acid concentration and wine quality. From our correlation test, we can assume that the data is very weakly correlated. Our correlation value was .23 over a 95% confidence interval of .17 to .27. There is almost no correlation between the concentration of citric acid in red wine and the quality rating given by wine graders. Based on our analysis, we can conclude that there is a very weak, positive, linear relationship between the amount of citric acid in red wine and the quality rating given by wine graders.
+```{r}
+cor.test(red_wine_dataset$citric.acid, red_wine_dataset$quality)
+```
+
+  Similar to above, the following block creates a linear model of the alcohol vs quality of wine in the wine_dataset and prints a summary of the information. In this case, we are looking at both red and white wine. The summary below shows the coefficients for regression analysis as well as p-values to determine whether or not they can be accepted. From the alcohol vs quality linear model, the slope coefficient is .61 and our intercept coefficient is 6.96. With p-values that are much less than our alpha value, we are able to reject the null hypothesis. Based on this, it can be assumed that there is a positive relationship between alcohol concentration in wine and the quality rating given by wine graders.
+```{r}
+alcohol_v_quality <- lm(alcohol ~ quality, data = wine_dataset)
+summary(alcohol_v_quality)
+```
+
+  Again we can create a graphical model of our data. Below is a scatter plot of the amount of alcohol vs the quality rating given by wine graders. We were also able to draw the regression line with a 95% confidence interval over the data to visualize the positive relationship between the data.
+```{r}
+wine_dataset %>%
+ggplot(aes(x = quality, y = alcohol)) +
+  geom_point() +
+  geom_smooth(method = "lm") 
+```
+
+  Having again presented our data in both a mathematical and visual format, we looked at the distribution of the amount of alcohol in each wine sample. Based on the chart, there is a slight skew in our data towards lower amounts of alcohol by volume. We then took the standard deviation of the alcohol and our value was 1.19. Unlike our previous analysis, the alcohol data is spread further and can allow for a better analysis.
+```{r}
+hist(wine_dataset$alcohol)
+sd(wine_dataset$alcohol)
+```
+
+  After we looked at the linear relationship between the data, we explored the correlation between alcohol content and wine quality. From our correlation test, we can assume that the data has a weak correlation. Our correlation value was .44 over a 95% confidence interval of .42 to .46. Having a correlation value close to .5 we can assume there is a correlation between the data with the p-value being small.  Based on our analysis, we can conclude that there is a weak, positive, linear relationship between the amount of alcohol in wine and the quality rating given by wine graders.
+```{r}
+cor.test(wine_dataset$alcohol, wine_dataset$quality)
+```
+
+
+# Conclusions
+  After analyzing and evaluating the dataset in order to determine a correlation between citric acid and wine quality rating, we have come to the conclusion that there is little to no positive correlation between the two variables. The amount of citric acid in the red variants of the wine had little to no impact on the rating that was given by the wine experts. We ran similar testing and evaluation in order to reach a conclusion for our second inquiry. From our testing, we have found a weak, linear relationship between the alcohol amount (by volume) and the rating that was given by the wine experts.
+
+  For the first inquiry, the results are unable to be extended to a larger population since there was no evident correlation between the variables. For the second inquiry, the results can be extended to a larger population since there was a weak correlation. However, it is important to keep in mind that the dataset is based on a specific brand of wine, Portuguese Vinho Verde.
+
+  From our testing, we have gained evidence that citric acid does not have an impact on the quality of the wine, according to wine experts. On the other hand, the amount of alcohol (by volume) does seem to have an impact, although very little, on the quality of the wine. Due to the history of citric acid within the wine-making process, we had figured it would have had a more profound impact on the quality of the wine, however, this was evidently not the case. This was also the case with the alcohol content within the wine, since wine is an alcoholic drink we figured it would have boosted the quality of the wine. 
+  
+  To improve the design of our experiment, more data points would help establish a better image between the variables and the relationships we tested. A further spread of the wine experts used and variations of their ages could also extend to make this data more sophisticated. Different age groups have different tastes that appeal to them. For example, food you ate when you were younger may not be appetizing to you now. To extend this research in the future, we can extend this experiment to other brands of wines or other types of alcoholic drinks available on the market. Our dataset and hence our experiment currently only look at one brand of red and white wine made by one company. There are many other companies and variations of wine that can be tested.
+
+# References {-}
+Source for our dataset: https://www.kaggle.com/ruthgn/wine-quality-data-set-red-white-wine
+
+Additional information about the dataset: https://archive.ics.uci.edu/ml/datasets/wine+quality
+
+Author of the dataset: https://pcortez.dsi.uminho.pt/
